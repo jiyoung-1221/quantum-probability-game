@@ -1,0 +1,382 @@
+[
+  {
+    "id": "distribution",
+    "title": "확률적 분포",
+    "subtitle": "전자들은 어디에 도착할까?",
+    "summary": "이중슬릿 실험에서 전자 하나는 예측하기 어렵지만, 왜 전체적으로는 규칙적인 무늬가 나타날까요?",
+    "classroomGoal": "단일 양자의 분포를 확률파동과 간섭을 바탕으로 해석할 수 있다.",
+    "activityLabel": "이중슬릿 탐구",
+    "color": "blue",
+    "questions": [
+      {
+        "id": "distribution-q1",
+        "type": "ox",
+        "flowLabel": "1번: 직관 확인",
+        "prompt": "전자 한 개를 쏘면 스크린에서 도착 위치를 정확히 예측할 수 있다.",
+        "choices": [
+          { "id": "o", "text": "O" },
+          { "id": "x", "text": "X" }
+        ],
+        "correctAnswer": "x",
+        "correctFeedback": "좋아요! 양자역학에서는 단일 입자의 도착 위치를 정확히 예측할 수 없습니다. 대신 어느 위치에 도착할 확률을 설명할 수 있어요.",
+        "wrongFeedbacks": {
+          "o": "고전적 입자 개념과 헷갈렸을 수 있어요. 양자 입자의 위치는 측정 전에는 확률적으로만 예측할 수 있습니다."
+        }
+      },
+      {
+        "id": "distribution-q2",
+        "type": "ordering",
+        "flowLabel": "2번: 개념 흐름 배열",
+        "prompt": "전자 하나씩 이중슬릿에 쏘는 과정이 올바른 순서가 되도록 배치해보세요.",
+        "choices": [
+          { "id": "interference", "text": "간섭무늬 형성" },
+          { "id": "shoot", "text": "전자 하나 발사" },
+          { "id": "arrival", "text": "확률적으로 도착" },
+          { "id": "accumulate", "text": "점들이 점점 쌓임" }
+        ],
+        "correctAnswer": ["shoot", "arrival", "accumulate", "interference"],
+        "correctFeedback": "좋아요! 전자 하나는 어디 도착할지 예측하기 어렵지만, 많이 쌓이면 전체적으로 간섭무늬가 나타납니다.",
+        "wrongFeedbacks": {
+          "general": "순서를 다시 생각해보세요. 단일 입자는 확률적으로 도착하고, 그 결과가 많이 누적될 때 간섭무늬가 형성됩니다."
+        }
+      },
+      {
+        "id": "distribution-q3",
+        "type": "multiple",
+        "flowLabel": "3번: 관계 이해",
+        "prompt": "이중슬릿 실험과 간섭무늬의 관계를 가장 잘 설명한 것은?",
+        "choices": [
+          { "id": "a", "text": "A. 이중슬릿 실험은 간섭무늬를 형성한다." },
+          { "id": "b", "text": "B. 이중슬릿 실험은 간섭무늬를 제거한다." },
+          { "id": "c", "text": "C. 이중슬릿 실험은 입자의 확률적 분포와 관련 없다." },
+          { "id": "d", "text": "D. 간섭무늬는 항상 한 줄로만 나타난다." }
+        ],
+        "correctAnswer": "a",
+        "correctFeedback": "좋아요! 양자 입자는 두 슬릿에서 나온 확률파동이 간섭하면서 간섭무늬를 형성합니다.",
+        "wrongFeedbacks": {
+          "b": "반대로 생각했어요. 이중슬릿에서는 확률파동의 간섭으로 간섭무늬가 나타납니다.",
+          "c": "이중슬릿 실험은 입자의 확률적 분포를 보여 주는 대표적 사례입니다.",
+          "d": "한 줄이 아니라 밝고 어두운 무늬가 반복되는 간섭무늬가 나타납니다."
+        }
+      },
+      {
+        "id": "distribution-q4",
+        "type": "multiple",
+        "flowLabel": "4번: 결과 예측",
+        "prompt": "전자 한 개씩 매우 오랜 시간 동안 이중슬릿에 쏘면 어떤 결과가 나타날까?",
+        "choices": [
+          { "id": "a", "text": "A. 무작위 점만 보인다." },
+          { "id": "b", "text": "B. 한 줄만 나타난다." },
+          { "id": "c", "text": "C. 간섭무늬가 점점 형성된다." },
+          { "id": "d", "text": "D. 항상 같은 위치에 도착한다." }
+        ],
+        "correctAnswer": "c",
+        "correctFeedback": "좋아요! 전자 하나는 확률적으로 도착하지만, 많이 쌓이면 전체적으로는 간섭무늬가 나타납니다.",
+        "wrongFeedbacks": {
+          "a": "완전히 무작위만은 아닙니다. 많은 결과가 누적되면 확률분포에 따른 무늬가 나타납니다.",
+          "b": "단순한 한 줄이 아니라 간섭무늬가 형성됩니다.",
+          "d": "양자 입자의 단일 도착 위치는 정확히 예측할 수 없습니다."
+        }
+      },
+      {
+        "id": "distribution-q5",
+        "type": "multiple",
+        "flowLabel": "5번: 오개념 진단",
+        "prompt": "한 학생이 말했다. “전자는 사실 이미 어느 슬릿을 지나는지 정해져 있어. 우리가 모를 뿐이야.” 이 설명은?",
+        "choices": [
+          { "id": "a", "text": "A. 적절하다." },
+          { "id": "b", "text": "B. 적절하지 않다." }
+        ],
+        "correctAnswer": "b",
+        "correctFeedback": "좋아요! 이 생각은 고전적 확률 개념과 양자확률을 구분해야 함을 보여 줍니다. 양자 입자의 행동은 확률파동의 간섭으로 해석됩니다.",
+        "wrongFeedbacks": {
+          "a": "이 생각은 고전적 확률 개념에 가까워요. 양자역학에서는 입자의 상태를 단순히 숨겨진 정보로만 설명하지 않습니다."
+        }
+      }
+    ]
+  },
+  {
+    "id": "state",
+    "title": "확률적 상태",
+    "subtitle": "측정 전에는 어떤 상태일까?",
+    "summary": "중첩 상태와 측정을 통해 양자상태가 확률적으로 결정되는 과정을 알아봅니다.",
+    "classroomGoal": "중첩과 측정을 통한 확률적 상태 변화를 설명할 수 있다.",
+    "activityLabel": "중첩 상태 탐구",
+    "color": "violet",
+    "questions": [
+      {
+        "id": "state-q1",
+        "type": "ox",
+        "flowLabel": "1번: 직관 확인",
+        "prompt": "측정 전 입자의 상태는 이미 하나로 결정되어 있다.",
+        "choices": [
+          { "id": "o", "text": "O" },
+          { "id": "x", "text": "X" }
+        ],
+        "correctAnswer": "x",
+        "correctFeedback": "좋아요! 양자역학에서는 측정 전 상태가 하나로 정해져 있지 않을 수 있어요. 이를 중첩이라고 합니다.",
+        "wrongFeedbacks": {
+          "o": "고전적 사고와 헷갈렸을 수 있어요. 양자 상태는 측정 전 여러 가능성이 함께 존재할 수 있습니다."
+        }
+      },
+      {
+        "id": "state-q2",
+        "type": "ordering",
+        "flowLabel": "2번: 개념 흐름 배열",
+        "prompt": "양자 상태가 측정될 때의 과정을 올바른 순서로 배치해보세요.",
+        "choices": [
+          { "id": "collapse", "text": "하나의 상태로 결정됨" },
+          { "id": "measure", "text": "측정 수행" },
+          { "id": "superposition", "text": "중첩 상태 존재" },
+          { "id": "result", "text": "결과 확인" }
+        ],
+        "correctAnswer": ["superposition", "measure", "collapse", "result"],
+        "correctFeedback": "좋아요! 양자상태는 측정 전 여러 가능성이 함께 존재할 수 있으며, 측정 순간 하나의 상태로 결정됩니다.",
+        "wrongFeedbacks": {
+          "general": "측정은 단순 확인이 아닙니다. 중첩 상태가 먼저 존재하고, 측정 순간 하나의 결과로 결정됩니다."
+        }
+      },
+      {
+        "id": "state-q3",
+        "type": "multiple",
+        "flowLabel": "3번: 큐비트 이해",
+        "prompt": "다음 중 큐비트(qubit)의 특징으로 가장 적절한 것은?",
+        "choices": [
+          { "id": "a", "text": "A. 항상 0 또는 1 중 하나만 가진다." },
+          { "id": "b", "text": "B. 측정 전 여러 상태가 함께 존재할 수 있다." },
+          { "id": "c", "text": "C. 측정해도 상태가 변하지 않는다." },
+          { "id": "d", "text": "D. 일반 비트와 완전히 같다." }
+        ],
+        "correctAnswer": "b",
+        "correctFeedback": "좋아요! 큐비트는 중첩 상태를 이용해 0과 1의 가능성을 동시에 가질 수 있습니다. 이 특징이 양자컴퓨터의 핵심이에요.",
+        "wrongFeedbacks": {
+          "a": "이 설명은 일반 컴퓨터의 비트에 가까워요. 큐비트는 측정 전 여러 가능성이 함께 존재할 수 있습니다.",
+          "c": "측정은 단순 확인이 아니에요. 양자상태는 측정 순간 하나의 상태로 결정될 수 있습니다.",
+          "d": "큐비트는 중첩을 사용할 수 있다는 점에서 일반 비트와 다릅니다."
+        }
+      },
+      {
+        "id": "state-q4",
+        "type": "multiple",
+        "flowLabel": "4번: 결과 예측",
+        "prompt": "중첩 상태에 있는 큐비트를 측정하면 어떤 일이 일어날까?",
+        "choices": [
+          { "id": "a", "text": "A. 여러 상태를 계속 유지한다." },
+          { "id": "b", "text": "B. 하나의 상태로 결정된다." },
+          { "id": "c", "text": "C. 상태가 사라진다." },
+          { "id": "d", "text": "D. 항상 같은 결과가 나온다." }
+        ],
+        "correctAnswer": "b",
+        "correctFeedback": "좋아요! 측정 순간 양자상태는 하나의 상태로 결정됩니다. 이를 상태 붕괴라고 해요.",
+        "wrongFeedbacks": {
+          "a": "측정 후에는 여러 가능성이 그대로 유지되는 것이 아니라 하나의 결과로 결정됩니다.",
+          "c": "상태가 사라지는 것이 아니라 하나의 상태로 결정됩니다.",
+          "d": "측정 결과는 확률적으로 결정되므로 항상 같은 결과가 나온다고 할 수 없습니다."
+        }
+      },
+      {
+        "id": "state-q5",
+        "type": "multiple",
+        "flowLabel": "5번: 오개념 진단",
+        "prompt": "한 학생이 말했다. “중첩은 사실 이미 정해진 결과를 우리가 모르는 것뿐이야.” 이 설명은?",
+        "choices": [
+          { "id": "a", "text": "A. 적절하다." },
+          { "id": "b", "text": "B. 적절하지 않다." }
+        ],
+        "correctAnswer": "b",
+        "correctFeedback": "좋아요! 이 생각은 고전적 확률과 양자확률을 구분해야 하는 대표적인 사례입니다.",
+        "wrongFeedbacks": {
+          "a": "이 생각은 고전적 확률 개념에 가까워요. 양자역학에서는 측정 전 상태 자체가 중첩되어 존재할 수 있습니다."
+        }
+      }
+    ]
+  },
+  {
+    "id": "event",
+    "title": "확률적 사건",
+    "subtitle": "벽을 통과할 수 있을까?",
+    "summary": "에너지가 부족해도 입자가 장벽을 통과할 수 있다는 터널 효과를 확률 개념으로 탐험합니다.",
+    "classroomGoal": "터널 효과를 확률적 사건으로 설명할 수 있다.",
+    "activityLabel": "터널 효과 탐구",
+    "color": "green",
+    "questions": [
+      {
+        "id": "event-q1",
+        "type": "ox",
+        "flowLabel": "1번: 직관 확인",
+        "prompt": "입자의 에너지가 장벽보다 낮다면 절대 장벽을 통과할 수 없다.",
+        "choices": [
+          { "id": "o", "text": "O" },
+          { "id": "x", "text": "X" }
+        ],
+        "correctAnswer": "x",
+        "correctFeedback": "좋아요! 양자역학에서는 입자가 일정 확률로 장벽을 통과할 수 있어요. 이를 터널 효과라고 합니다.",
+        "wrongFeedbacks": {
+          "o": "고전물리학에서는 맞는 설명이에요. 하지만 양자역학에서는 입자가 일정 확률로 장벽을 통과할 수 있습니다."
+        }
+      },
+      {
+        "id": "event-q2",
+        "type": "ordering",
+        "flowLabel": "2번: 개념 흐름 배열",
+        "prompt": "터널 효과가 일어나는 과정을 올바른 순서로 배치해보세요.",
+        "choices": [
+          { "id": "reach", "text": "입자가 장벽에 도달" },
+          { "id": "decision", "text": "통과 여부가 확률적으로 결정됨" },
+          { "id": "found", "text": "일부 입자는 장벽 뒤에서 발견됨" },
+          { "id": "blocked", "text": "일부 입자는 통과하지 못함" }
+        ],
+        "correctAnswer": ["reach", "decision", "found", "blocked"],
+        "correctFeedback": "좋아요! 모든 입자가 통과하는 것이 아니라, 일정 확률로만 장벽을 통과할 수 있습니다.",
+        "wrongFeedbacks": {
+          "general": "순서를 다시 생각해보세요. 입자가 장벽에 도달하면 통과 여부가 확률적으로 결정되고, 일부는 장벽 뒤에서 발견되며 일부는 통과하지 못합니다."
+        }
+      },
+      {
+        "id": "event-q3",
+        "type": "multiple",
+        "flowLabel": "3번: 상황 판단",
+        "prompt": "두 학생의 의견 중 터널 효과를 가장 잘 설명한 것은?",
+        "choices": [
+          { "id": "a", "text": "A. 입자가 매우 빠르면 벽을 넘는 거야." },
+          { "id": "b", "text": "B. 입자는 일정 확률로 벽을 통과할 수 있어." }
+        ],
+        "correctAnswer": "b",
+        "correctFeedback": "좋아요! 터널 효과는 입자가 확률적으로 장벽을 통과하는 현상입니다.",
+        "wrongFeedbacks": {
+          "a": "이 설명은 고전물리학적 설명에 가까워요. 터널 효과는 속도가 빨라서 넘는 것이 아니라, 양자역학적 확률 때문에 장벽을 통과하는 현상입니다."
+        }
+      },
+      {
+        "id": "event-q4",
+        "type": "multiple",
+        "flowLabel": "4번: 결과 예측",
+        "prompt": "100개의 입자가 터널 효과가 가능한 장벽에 도달했다. 가장 가능성 높은 결과는?",
+        "choices": [
+          { "id": "a", "text": "A. 모두 통과한다." },
+          { "id": "b", "text": "B. 아무도 통과하지 못한다." },
+          { "id": "c", "text": "C. 일부는 통과하고 일부는 통과하지 못한다." },
+          { "id": "d", "text": "D. 항상 같은 수가 통과한다." }
+        ],
+        "correctAnswer": "c",
+        "correctFeedback": "좋아요! 터널 효과는 확률적 현상이에요. 그래서 일부 입자만 통과할 수 있습니다.",
+        "wrongFeedbacks": {
+          "a": "모든 입자가 반드시 통과하는 것은 아니에요. 터널 효과는 일정 확률로 일어납니다.",
+          "b": "양자역학에서는 장벽을 통과할 가능성이 0이 아닐 수 있습니다.",
+          "d": "확률은 경향을 예측하지만, 매번 정확히 같은 수를 보장하지는 않습니다."
+        }
+      },
+      {
+        "id": "event-q5",
+        "type": "multiple",
+        "flowLabel": "5번: 오개념 진단",
+        "prompt": "한 학생이 말했다. “벽을 통과했다면 처음부터 에너지가 충분했던 거야.” 이 설명은?",
+        "choices": [
+          { "id": "a", "text": "A. 적절하다." },
+          { "id": "b", "text": "B. 적절하지 않다." }
+        ],
+        "correctAnswer": "b",
+        "correctFeedback": "좋아요! 터널 효과는 고전적으로는 통과하기 어려운 장벽도 양자역학적 확률로 통과할 수 있음을 보여 줍니다.",
+        "wrongFeedbacks": {
+          "a": "이 설명은 고전물리학적 사고에 가까워요. 터널 효과는 에너지가 부족해도 양자역학적 확률 때문에 통과가 가능할 수 있습니다."
+        }
+      }
+    ]
+  },
+  {
+    "id": "existence",
+    "title": "확률적 존재",
+    "subtitle": "전자는 어디에 존재할까?",
+    "summary": "전자는 정말 행성처럼 움직일까요? 전자구름과 현대 원자모형을 통해 전자의 존재를 확률적으로 이해합니다.",
+    "classroomGoal": "현대 원자모형을 불확정성 원리와 확률을 바탕으로 설명할 수 있다.",
+    "activityLabel": "전자구름 탐구",
+    "color": "orange",
+    "questions": [
+      {
+        "id": "existence-q1",
+        "type": "ox",
+        "flowLabel": "1번: 직관 확인",
+        "prompt": "전자는 태양 주위를 도는 행성처럼 원자핵 주위를 정확한 궤도로 움직인다.",
+        "choices": [
+          { "id": "o", "text": "O" },
+          { "id": "x", "text": "X" }
+        ],
+        "correctAnswer": "x",
+        "correctFeedback": "좋아요! 현대 원자모형에서 전자는 정확한 궤도를 도는 것이 아니라, 존재 가능성이 높은 영역으로 표현합니다.",
+        "wrongFeedbacks": {
+          "o": "이 생각은 보어 원자모형에 가까워요. 현대 원자모형에서는 전자 위치를 확률적으로 설명합니다."
+        }
+      },
+      {
+        "id": "existence-q2",
+        "type": "ordering",
+        "flowLabel": "2번: 개념 흐름 배열",
+        "prompt": "현대 원자모형에서 전자의 존재를 설명하는 과정을 올바른 순서로 배치해보세요.",
+        "choices": [
+          { "id": "cloud", "text": "전자구름으로 표현" },
+          { "id": "uncertainPosition", "text": "정확한 위치 예측 어려움" },
+          { "id": "probability", "text": "전자 존재 가능성 설명" },
+          { "id": "uncertainty", "text": "불확정성 원리 고려" }
+        ],
+        "correctAnswer": ["uncertainty", "uncertainPosition", "probability", "cloud"],
+        "correctFeedback": "좋아요! 현대 원자모형에서는 전자 위치를 정확히 예측하기보다 존재 확률을 전자구름으로 표현합니다.",
+        "wrongFeedbacks": {
+          "general": "전자구름은 왜 등장했을까요? 전자 위치를 정확히 알기 어렵다는 점과 연결해보세요."
+        }
+      },
+      {
+        "id": "existence-q3",
+        "type": "multiple",
+        "flowLabel": "3번: 보어 모형과 현대 원자모형 비교",
+        "prompt": "다음 중 현대 원자모형의 설명으로 가장 적절한 것은?",
+        "choices": [
+          { "id": "a", "text": "A. 전자는 항상 일정한 궤도를 돈다." },
+          { "id": "b", "text": "B. 전자의 위치는 확률적으로 표현된다." },
+          { "id": "c", "text": "C. 전자는 멈춰 있다." },
+          { "id": "d", "text": "D. 전자의 위치는 언제나 정확히 측정 가능하다." }
+        ],
+        "correctAnswer": "b",
+        "correctFeedback": "좋아요! 현대 원자모형에서는 전자의 위치를 ‘확률적으로 존재하는 영역’으로 설명합니다.",
+        "wrongFeedbacks": {
+          "a": "이 설명은 보어 원자모형에 가까워요. 현대 원자모형에서는 정확한 궤도 대신 확률분포를 사용합니다.",
+          "c": "전자는 멈춰 있는 것이 아니에요. 다만 정확한 위치를 동시에 설명하기 어려워 확률로 표현합니다.",
+          "d": "불확정성 원리를 떠올려보세요. 전자 위치는 언제나 정확히 알 수 없습니다."
+        }
+      },
+      {
+        "id": "existence-q4",
+        "type": "multiple",
+        "flowLabel": "4번: 결과 예측",
+        "prompt": "전자 위치를 매우 많이 측정하면 가장 가능성 높은 결과는?",
+        "choices": [
+          { "id": "a", "text": "A. 항상 같은 위치에 있다." },
+          { "id": "b", "text": "B. 완전히 무작위이다." },
+          { "id": "c", "text": "C. 특정 영역에서 더 자주 발견된다." },
+          { "id": "d", "text": "D. 전자는 관찰되지 않는다." }
+        ],
+        "correctAnswer": "c",
+        "correctFeedback": "좋아요! 전자는 특정 위치에 고정된 것이 아니라, 존재 확률이 높은 영역에서 더 자주 발견됩니다.",
+        "wrongFeedbacks": {
+          "a": "고전적 입자 개념과 헷갈렸을 수 있어요. 전자 위치는 확률적으로 설명합니다.",
+          "b": "완전히 무작위는 아니에요. 전자구름처럼 확률이 높은 영역이 존재합니다.",
+          "d": "전자는 관찰할 수 있어요. 다만 위치를 정확히 예측하기 어려운 것입니다."
+        }
+      },
+      {
+        "id": "existence-q5",
+        "type": "multiple",
+        "flowLabel": "5번: 오개념 진단",
+        "prompt": "한 학생이 말했다. “전자구름은 전자 위치를 몰라서 대충 그려놓은 그림이야.” 이 설명은?",
+        "choices": [
+          { "id": "a", "text": "A. 적절하다." },
+          { "id": "b", "text": "B. 적절하지 않다." }
+        ],
+        "correctAnswer": "b",
+        "correctFeedback": "좋아요! 전자구름은 대충 그린 그림이 아니라, 전자가 존재할 가능성을 확률적으로 나타낸 모델입니다.",
+        "wrongFeedbacks": {
+          "a": "전자구름은 ‘모르니까 대충 표현’한 것이 아니에요. 양자역학에서 전자 존재 확률을 과학적으로 표현한 모델입니다."
+        }
+      }
+    ]
+  }
+]
