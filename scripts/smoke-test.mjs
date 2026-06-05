@@ -147,7 +147,7 @@ async function run() {
   await clickByText('결과 확인');
   await clickByText('완료하고 허브로 돌아가기');
 
-  await expectText('1/4개 탐험 완료');
+  await expectText('1/4 탐험 완료');
   await expectText('25%');
 
   client.close();
