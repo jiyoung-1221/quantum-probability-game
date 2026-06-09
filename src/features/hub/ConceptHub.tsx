@@ -3,6 +3,9 @@ import type { ConceptArea } from '../../types/concept';
 type ConceptHubProps = {
   concepts: ConceptArea[];
   completedConceptIds: Set<string>;
+  isCelebrationOpen: boolean;
+  onCloseCelebration: () => void;
+  onRestartExploration: () => void;
   onSelectConcept: (conceptId: string) => void;
 };
 
@@ -40,6 +43,9 @@ const cardTone = {
 export function ConceptHub({
   concepts,
   completedConceptIds,
+  isCelebrationOpen,
+  onCloseCelebration,
+  onRestartExploration,
   onSelectConcept,
 }: ConceptHubProps) {
   const completedCount = completedConceptIds.size;
@@ -177,6 +183,101 @@ export function ConceptHub({
           );
         })}
       </div>
+      {isCelebrationOpen ? (
+        <CompletionCelebration
+          onClose={onCloseCelebration}
+          onRestart={onRestartExploration}
+        />
+      ) : null}
     </section>
+  );
+}
+
+const celebrationStars = [
+  { left: '8%', top: '17%', delay: '0s', duration: '2.8s' },
+  { left: '18%', top: '71%', delay: '0.7s', duration: '3.4s' },
+  { left: '29%', top: '11%', delay: '1.2s', duration: '2.6s' },
+  { left: '41%', top: '82%', delay: '0.35s', duration: '3.1s' },
+  { left: '56%', top: '16%', delay: '1.6s', duration: '3.6s' },
+  { left: '68%', top: '76%', delay: '0.9s', duration: '2.9s' },
+  { left: '79%', top: '9%', delay: '0.2s', duration: '3.3s' },
+  { left: '91%', top: '62%', delay: '1.35s', duration: '2.7s' },
+];
+
+function CompletionCelebration({
+  onClose,
+  onRestart,
+}: {
+  onClose: () => void;
+  onRestart: () => void;
+}) {
+  return (
+    <div
+      aria-labelledby="completion-title"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-950/88 px-4 py-8 backdrop-blur-md"
+      role="dialog"
+    >
+      <div className="celebration-aurora pointer-events-none absolute inset-0" />
+      <div className="celebration-orbit pointer-events-none absolute h-[min(82vw,46rem)] w-[min(82vw,46rem)] rounded-full border border-cyan-200/15" />
+      <div className="celebration-orbit celebration-orbit-reverse pointer-events-none absolute h-[min(62vw,34rem)] w-[min(62vw,34rem)] rounded-full border border-violet-200/20" />
+      {celebrationStars.map((star, index) => (
+        <span
+          className="celebration-star pointer-events-none absolute"
+          key={`${star.left}-${star.top}`}
+          style={{
+            animationDelay: star.delay,
+            animationDuration: star.duration,
+            left: star.left,
+            top: star.top,
+          }}
+        >
+          {index % 3 === 0 ? '✦' : '✧'}
+        </span>
+      ))}
+
+      <div className="celebration-panel relative w-full max-w-2xl overflow-hidden rounded-2xl border border-cyan-200/30 bg-slate-950/90 p-6 text-center shadow-[0_0_45px_rgba(34,211,238,0.28),0_0_120px_rgba(139,92,246,0.25)] sm:p-10">
+        <div className="celebration-scan pointer-events-none absolute inset-0" />
+        <div className="relative">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-cyan-200/40 bg-cyan-300/10 shadow-[0_0_38px_rgba(103,232,249,0.45)]">
+            <span
+              aria-hidden="true"
+              className="text-4xl text-cyan-100 drop-shadow-[0_0_12px_rgba(165,243,252,0.95)]"
+            >
+              ✦
+            </span>
+          </div>
+          <p className="mt-6 text-xs font-bold uppercase tracking-[0.35em] text-cyan-300 sm:text-sm">
+            Mission Complete
+          </p>
+          <h2
+            className="mt-3 text-3xl font-black leading-tight text-white drop-shadow-[0_0_18px_rgba(103,232,249,0.45)] sm:text-5xl"
+            id="completion-title"
+          >
+            양자 확률 탐험 완료!
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-slate-200 sm:text-base">
+            이중슬릿, 중첩, 터널 효과, 전자구름을 통해 양자역학 속 ‘확률’의
+            의미를 모두 탐험했어요.
+          </p>
+          <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-center">
+            <button
+              className="rounded-md border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-slate-100 transition hover:border-cyan-200/60 hover:bg-cyan-200/10 hover:text-white"
+              onClick={onClose}
+              type="button"
+            >
+              허브로 돌아가기
+            </button>
+            <button
+              className="rounded-md bg-gradient-to-r from-cyan-300 to-violet-300 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_0_24px_rgba(103,232,249,0.35)] transition hover:brightness-110"
+              onClick={onRestart}
+              type="button"
+            >
+              다시 탐험하기
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

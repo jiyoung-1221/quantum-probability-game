@@ -1,8 +1,12 @@
 import { spawn } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
 
 const chromePath = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const debuggingPort = 9333;
 const appUrl = 'http://127.0.0.1:5173/';
+const concepts = JSON.parse(
+  await readFile(new URL('../src/data/concepts.json', import.meta.url), 'utf8'),
+);
 
 const chrome = spawn(
   chromePath,
@@ -101,6 +105,18 @@ async function run() {
       })()
     `);
 
+  const clickLastButtonByText = (text) =>
+    evaluate(`
+      (() => {
+        const buttons = [...document.querySelectorAll('button')]
+          .filter((node) => node.textContent.includes(${JSON.stringify(text)}));
+        const button = buttons.at(-1);
+        if (!button) throw new Error('Button not found: ${text}');
+        button.click();
+        return true;
+      })()
+    `);
+
   const expectText = async (text) => {
     await sleep(100);
     const hasText = await evaluate(
@@ -111,44 +127,95 @@ async function run() {
     }
   };
 
+  const expectNoText = async (text) => {
+    await sleep(100);
+    const hasText = await evaluate(
+      `document.body.innerText.includes(${JSON.stringify(text)})`,
+    );
+    if (hasText) {
+      throw new Error(`Unexpected text was found: ${text}`);
+    }
+  };
+
+  const expectButton = async (text) => {
+    const hasButton = await evaluate(`
+      [...document.querySelectorAll('button')]
+        .some((node) => node.textContent.includes(${JSON.stringify(text)}))
+    `);
+    if (!hasButton) {
+      throw new Error(`Expected button was not found: ${text}`);
+    }
+  };
+
   await client.call('Runtime.enable');
-  await expectText('확률적 분포');
+  await expectText('양자역학 속 확률 탐험실');
 
-  await clickByText('확률적 분포');
-  await expectText('1번 · 먼저 생각해보기');
+  for (let conceptIndex = 0; conceptIndex < concepts.length; conceptIndex += 1) {
+    const concept = concepts[conceptIndex];
+    await clickByText(concept.title);
 
-  await clickByText('X');
-  await clickByText('결과 확인');
-  await expectText('정답 피드백');
-  await clickByText('다음 문제');
+    for (
+      let questionIndex = 0;
+      questionIndex < concept.questions.length;
+      questionIndex += 1
+    ) {
+      const question = concept.questions[questionIndex];
+      await expectText(`${questionIndex + 1}번 ·`);
 
-  await expectText('2번 · 순서 맞추기');
-  await expectText('순서 배열 카드');
-  await clickByText('전자 하나 발사');
-  await clickByText('확률적으로 도착');
-  await clickByText('점들이 점점 쌓임');
-  await clickByText('간섭무늬 형성');
-  await clickByText('결과 확인');
-  await expectText('정답 피드백');
-  await clickByText('다음 문제');
+      if (conceptIndex === 0 && questionIndex === 0) {
+        const wrongChoice = question.choices.find(
+          (choice) => choice.id !== question.correctAnswer,
+        );
 
-  await expectText('3번 · 핵심 개념 도전');
-  await clickByText('A. 이중슬릿 실험은 간섭무늬를 형성한다.');
-  await clickByText('결과 확인');
-  await clickByText('다음 문제');
+        await clickByText(wrongChoice.text);
+        await clickLastButtonByText('결과 확인');
+        await expectText('오답 피드백');
+        await expectButton('다시 풀어보기');
+        await expectButton('다음 문제로 넘어가기');
+        await clickByText('다시 풀어보기');
+        await expectNoText('오답 피드백');
+        await expectButton('결과 확인');
+      }
 
-  await expectText('4번 · 결과 예상하기');
-  await clickByText('C. 간섭무늬가 점점 형성된다.');
-  await clickByText('결과 확인');
-  await clickByText('다음 문제');
+      const correctChoiceIds = Array.isArray(question.correctAnswer)
+        ? question.correctAnswer
+        : [question.correctAnswer];
 
-  await expectText('5번 · ⚠️ 이런 생각, 맞을까?');
-  await clickByText('B. 적절하지 않다.');
-  await clickByText('결과 확인');
-  await clickByText('완료하고 허브로 돌아가기');
+      for (const choiceId of correctChoiceIds) {
+        const choice = question.choices.find((item) => item.id === choiceId);
+        await clickByText(choice.text);
+      }
 
-  await expectText('1/4 탐험 완료');
-  await expectText('25%');
+      await clickLastButtonByText('결과 확인');
+      try {
+        await expectText('정답 피드백');
+      } catch {
+        throw new Error(
+          `Correct answer was not accepted: ${concept.title} / ${question.id}`,
+        );
+      }
+      await clickByText(
+        questionIndex === concept.questions.length - 1
+          ? '완료하고 허브로 돌아가기'
+          : '다음 문제',
+      );
+    }
+
+    if (conceptIndex < concepts.length - 1) {
+      await expectText(`${conceptIndex + 1}/${concepts.length} 탐험 완료`);
+    }
+  }
+
+  await expectText('양자 확률 탐험 완료!');
+  await expectText(
+    '이중슬릿, 중첩, 터널 효과, 전자구름을 통해 양자역학 속 ‘확률’의 의미를 모두 탐험했어요.',
+  );
+  await expectButton('허브로 돌아가기');
+  await expectButton('다시 탐험하기');
+  await clickByText('다시 탐험하기');
+  await expectText('0/4 탐험 완료');
+  await expectText('0%');
+  await expectNoText('양자 확률 탐험 완료!');
 
   client.close();
 }

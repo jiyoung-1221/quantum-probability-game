@@ -9,6 +9,7 @@ export function App() {
   const [completedConceptIds, setCompletedConceptIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const [isCelebrationOpen, setIsCelebrationOpen] = useState(false);
 
   const selectedConcept = useMemo(
     () => conceptAreas.find((concept) => concept.id === selectedConceptId),
@@ -16,8 +17,23 @@ export function App() {
   );
 
   const markComplete = (conceptId: string) => {
-    setCompletedConceptIds((current) => new Set(current).add(conceptId));
+    const nextCompletedConceptIds = new Set(completedConceptIds).add(conceptId);
+
+    setCompletedConceptIds(nextCompletedConceptIds);
     setSelectedConceptId(null);
+
+    if (
+      completedConceptIds.size < conceptAreas.length &&
+      nextCompletedConceptIds.size === conceptAreas.length
+    ) {
+      setIsCelebrationOpen(true);
+    }
+  };
+
+  const restartExploration = () => {
+    setCompletedConceptIds(new Set());
+    setSelectedConceptId(null);
+    setIsCelebrationOpen(false);
   };
 
   return (
@@ -32,6 +48,9 @@ export function App() {
         <ConceptHub
           completedConceptIds={completedConceptIds}
           concepts={conceptAreas}
+          isCelebrationOpen={isCelebrationOpen}
+          onCloseCelebration={() => setIsCelebrationOpen(false)}
+          onRestartExploration={restartExploration}
           onSelectConcept={setSelectedConceptId}
         />
       )}

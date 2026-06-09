@@ -100,6 +100,15 @@ export function AssessmentGame({
     setSubmitted(false);
   };
 
+  const retryQuestion = () => {
+    setSelectedChoiceId(null);
+    setOrderedChoiceIds([]);
+    setSubmitted(false);
+    setResults((current) =>
+      current.filter((result) => result.questionId !== question.id),
+    );
+  };
+
   const moveChoice = (fromIndex: number, toIndex: number) => {
     if (toIndex < 0 || toIndex >= orderedChoiceIds.length || submitted) return;
 
@@ -186,7 +195,18 @@ export function AssessmentGame({
         )}
 
         {submitted ? (
-          <FeedbackCard isCorrect={isCorrect} items={feedbackItems} />
+          <>
+            <FeedbackCard isCorrect={isCorrect} items={feedbackItems} />
+            {!isCorrect ? (
+              <button
+                className="mt-3 rounded-md border border-rose-200/40 bg-rose-950/25 px-4 py-2 text-sm font-bold text-rose-100 transition hover:border-rose-100 hover:bg-rose-200/10 hover:text-white"
+                onClick={retryQuestion}
+                type="button"
+              >
+                다시 풀어보기
+              </button>
+            ) : null}
+          </>
         ) : null}
       </article>
 
@@ -204,7 +224,11 @@ export function AssessmentGame({
             onClick={goNext}
             type="button"
           >
-            {isLastQuestion ? '완료하고 허브로 돌아가기' : '다음 문제'}
+            {isLastQuestion
+              ? '완료하고 허브로 돌아가기'
+              : isCorrect
+                ? '다음 문제'
+                : '다음 문제로 넘어가기'}
           </button>
         ) : (
           <button
