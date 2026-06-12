@@ -225,6 +225,13 @@ async function run() {
   );
   await expectButton('허브로 돌아가기');
   await expectButton('다시 탐험하기');
+  await expectText('응답 결과 제출');
+  await expectText('반 선택');
+  await expectText('번호 선택');
+  await expectButton('결과 제출하기');
+  await expectButton('CSV 다운로드');
+  await clickByText('결과 제출하기');
+  await expectText('반과 번호를 먼저 선택해주세요.');
   await clickByText('다시 탐험하기');
   await expectText('0/4 탐험 완료');
   await expectText('0%');

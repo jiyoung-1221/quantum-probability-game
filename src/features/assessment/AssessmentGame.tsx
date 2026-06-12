@@ -7,11 +7,13 @@ import type {
   ConceptQuestion,
   OrderingConceptQuestion,
 } from '../../types/concept';
+import type { StudentAnswerRecord } from '../../types/result';
 
 type AssessmentGameProps = {
   concept: ConceptArea;
   onBackToHub: () => void;
   onComplete: () => void;
+  onRecordAnswer: (record: StudentAnswerRecord) => void;
 };
 
 type QuestionResult = {
@@ -71,6 +73,7 @@ export function AssessmentGame({
   concept,
   onBackToHub,
   onComplete,
+  onRecordAnswer,
 }: AssessmentGameProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
@@ -80,6 +83,9 @@ export function AssessmentGame({
   );
   const [submitted, setSubmitted] = useState(false);
   const [results, setResults] = useState<QuestionResult[]>([]);
+  const [retriedQuestionIds, setRetriedQuestionIds] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const question = concept.questions[currentIndex] ?? null;
 
@@ -130,6 +136,21 @@ export function AssessmentGame({
   const submitAnswer = () => {
     if (!canSubmit) return;
 
+    onRecordAnswer({
+      areaId: concept.id,
+      areaTitle: concept.title,
+      questionId: question.id,
+      prompt: question.prompt,
+      selectedAnswer: getSelectedAnswerText(
+        question,
+        selectedChoiceId,
+        orderedChoiceIds,
+        branchingSlots,
+      ),
+      isCorrect,
+      retried: retriedQuestionIds.has(question.id),
+      answeredAt: new Date().toISOString(),
+    });
     setResults((current) => [
       ...current.filter((result) => result.questionId !== question.id),
       { questionId: question.id, isCorrect },
@@ -155,6 +176,7 @@ export function AssessmentGame({
     setOrderedChoiceIds([]);
     setBranchingSlots(createEmptyBranchingSlots());
     setSubmitted(false);
+    setRetriedQuestionIds((current) => new Set(current).add(question.id));
     setResults((current) =>
       current.filter((result) => result.questionId !== question.id),
     );
@@ -348,6 +370,37 @@ function getQuestionScreenLabel(question: ConceptQuestion, currentIndex: number)
   return question.type === 'branching'
     ? '결과 흐름 완성하기'
     : friendlyFlowLabels[currentIndex];
+}
+
+function getSelectedAnswerText(
+  question: ConceptQuestion,
+  selectedChoiceId: string | null,
+  orderedChoiceIds: string[],
+  branchingSlots: BranchingSlots,
+) {
+  if (question.type === 'branching') {
+    return [
+      `시작: ${branchingSlots.start ?? ''}`,
+      `확률적 결정: ${branchingSlots.middle ?? ''}`,
+      `결과 A: ${branchingSlots.leftResult ?? ''}`,
+      `결과 B: ${branchingSlots.rightResult ?? ''}`,
+    ].join(' / ');
+  }
+
+  if (question.type === 'ordering') {
+    const choiceById = new Map(
+      question.choices.map((choice) => [choice.id, choice.text]),
+    );
+    return orderedChoiceIds
+      .map((choiceId) => choiceById.get(choiceId) ?? choiceId)
+      .join(' → ');
+  }
+
+  return (
+    question.choices.find((choice) => choice.id === selectedChoiceId)?.text ??
+    selectedChoiceId ??
+    ''
+  );
 }
 
 function ChoiceQuestion({

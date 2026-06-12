@@ -1,13 +1,28 @@
 import type { ConceptArea } from '../../types/concept';
+import type { ResultSubmissionStatus, StudentClass } from '../../types/result';
 
 type ConceptHubProps = {
+  answerCount: number;
   concepts: ConceptArea[];
   completedConceptIds: Set<string>;
   isCelebrationOpen: boolean;
+  onDownloadCsv: () => void;
   onCloseCelebration: () => void;
   onRestartExploration: () => void;
   onSelectConcept: (conceptId: string) => void;
+  onStudentClassChange: (studentClass: StudentClass | '') => void;
+  onStudentNumberChange: (studentNumber: number | '') => void;
+  onSubmitResults: () => void;
+  studentClass: StudentClass | '';
+  studentNumber: number | '';
+  submissionMessage: string;
+  submissionStatus: ResultSubmissionStatus;
+  totalCorrect: number;
+  totalQuestions: number;
 };
+
+const studentClasses: StudentClass[] = ['햇님반', '달님반', '별님반'];
+const studentNumbers = Array.from({ length: 30 }, (_, index) => index + 1);
 
 const cardTone = {
   blue: {
@@ -41,12 +56,23 @@ const cardTone = {
 };
 
 export function ConceptHub({
+  answerCount,
   concepts,
   completedConceptIds,
   isCelebrationOpen,
+  onDownloadCsv,
   onCloseCelebration,
   onRestartExploration,
   onSelectConcept,
+  onStudentClassChange,
+  onStudentNumberChange,
+  onSubmitResults,
+  studentClass,
+  studentNumber,
+  submissionMessage,
+  submissionStatus,
+  totalCorrect,
+  totalQuestions,
 }: ConceptHubProps) {
   const completedCount = completedConceptIds.size;
   const progress = Math.round((completedCount / concepts.length) * 100);
@@ -183,13 +209,151 @@ export function ConceptHub({
           );
         })}
       </div>
+      {completedCount === concepts.length ? (
+        <ResultSubmissionPanel
+          answerCount={answerCount}
+          onDownloadCsv={onDownloadCsv}
+          onStudentClassChange={onStudentClassChange}
+          onStudentNumberChange={onStudentNumberChange}
+          onSubmitResults={onSubmitResults}
+          studentClass={studentClass}
+          studentNumber={studentNumber}
+          submissionMessage={submissionMessage}
+          submissionStatus={submissionStatus}
+          totalCorrect={totalCorrect}
+          totalQuestions={totalQuestions}
+        />
+      ) : null}
       {isCelebrationOpen ? (
         <CompletionCelebration
+          answerCount={answerCount}
           onClose={onCloseCelebration}
+          onDownloadCsv={onDownloadCsv}
           onRestart={onRestartExploration}
+          onStudentClassChange={onStudentClassChange}
+          onStudentNumberChange={onStudentNumberChange}
+          onSubmitResults={onSubmitResults}
+          studentClass={studentClass}
+          studentNumber={studentNumber}
+          submissionMessage={submissionMessage}
+          submissionStatus={submissionStatus}
+          totalCorrect={totalCorrect}
+          totalQuestions={totalQuestions}
         />
       ) : null}
     </section>
+  );
+}
+
+function ResultSubmissionPanel({
+  answerCount,
+  onDownloadCsv,
+  onStudentClassChange,
+  onStudentNumberChange,
+  onSubmitResults,
+  studentClass,
+  studentNumber,
+  submissionMessage,
+  submissionStatus,
+  totalCorrect,
+  totalQuestions,
+}: {
+  answerCount: number;
+  onDownloadCsv: () => void;
+  onStudentClassChange: (studentClass: StudentClass | '') => void;
+  onStudentNumberChange: (studentNumber: number | '') => void;
+  onSubmitResults: () => void;
+  studentClass: StudentClass | '';
+  studentNumber: number | '';
+  submissionMessage: string;
+  submissionStatus: ResultSubmissionStatus;
+  totalCorrect: number;
+  totalQuestions: number;
+}) {
+  const messageTone =
+    submissionStatus === 'success'
+      ? 'text-emerald-200'
+      : submissionStatus === 'error'
+        ? 'text-rose-200'
+        : 'text-amber-200';
+
+  return (
+    <div className="rounded-lg border border-cyan-200/25 bg-slate-950/70 p-5 text-left shadow-[0_0_42px_rgba(34,211,238,0.16)] sm:p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-bold text-cyan-300">응답 결과 제출</p>
+          <p className="mt-2 text-sm leading-6 text-slate-300">
+            이름 없이 반과 번호만 선택해 개인 응답 결과를 제출합니다.
+          </p>
+        </div>
+        <p className="text-sm font-semibold text-slate-200">
+          최종 정답 {totalCorrect}/{totalQuestions} · 기록 {answerCount}개
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <label className="text-sm font-bold text-slate-100">
+          반 선택
+          <select
+            className="mt-2 w-full rounded-md border border-white/15 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 outline-none transition focus:border-cyan-300"
+            onChange={(event) =>
+              onStudentClassChange(event.target.value as StudentClass | '')
+            }
+            value={studentClass}
+          >
+            <option value="">반을 선택하세요</option>
+            {studentClasses.map((className) => (
+              <option key={className} value={className}>
+                {className}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm font-bold text-slate-100">
+          번호 선택
+          <select
+            className="mt-2 w-full rounded-md border border-white/15 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 outline-none transition focus:border-cyan-300"
+            onChange={(event) =>
+              onStudentNumberChange(
+                event.target.value ? Number(event.target.value) : '',
+              )
+            }
+            value={studentNumber}
+          >
+            <option value="">번호를 선택하세요</option>
+            {studentNumbers.map((number) => (
+              <option key={number} value={number}>
+                {number}번
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {submissionMessage ? (
+        <p className={`mt-3 text-sm font-bold ${messageTone}`}>
+          {submissionMessage}
+        </p>
+      ) : null}
+
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <button
+          className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:bg-slate-700 disabled:text-slate-400"
+          disabled={submissionStatus === 'submitting'}
+          onClick={onSubmitResults}
+          type="button"
+        >
+          {submissionStatus === 'submitting' ? '제출 중...' : '결과 제출하기'}
+        </button>
+        <button
+          className="rounded-md border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-slate-100 transition hover:border-cyan-200/60 hover:bg-cyan-200/10 hover:text-white"
+          onClick={onDownloadCsv}
+          type="button"
+        >
+          CSV 다운로드
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -205,11 +369,33 @@ const celebrationStars = [
 ];
 
 function CompletionCelebration({
+  answerCount,
   onClose,
+  onDownloadCsv,
   onRestart,
+  onStudentClassChange,
+  onStudentNumberChange,
+  onSubmitResults,
+  studentClass,
+  studentNumber,
+  submissionMessage,
+  submissionStatus,
+  totalCorrect,
+  totalQuestions,
 }: {
+  answerCount: number;
   onClose: () => void;
+  onDownloadCsv: () => void;
   onRestart: () => void;
+  onStudentClassChange: (studentClass: StudentClass | '') => void;
+  onStudentNumberChange: (studentNumber: number | '') => void;
+  onSubmitResults: () => void;
+  studentClass: StudentClass | '';
+  studentNumber: number | '';
+  submissionMessage: string;
+  submissionStatus: ResultSubmissionStatus;
+  totalCorrect: number;
+  totalQuestions: number;
 }) {
   return (
     <div
@@ -236,7 +422,7 @@ function CompletionCelebration({
         </span>
       ))}
 
-      <div className="celebration-panel relative w-full max-w-2xl overflow-hidden rounded-2xl border border-cyan-200/30 bg-slate-950/90 p-6 text-center shadow-[0_0_45px_rgba(34,211,238,0.28),0_0_120px_rgba(139,92,246,0.25)] sm:p-10">
+      <div className="celebration-panel relative max-h-[calc(100vh-4rem)] w-full max-w-3xl overflow-y-auto rounded-2xl border border-cyan-200/30 bg-slate-950/90 p-6 text-center shadow-[0_0_45px_rgba(34,211,238,0.28),0_0_120px_rgba(139,92,246,0.25)] sm:p-10">
         <div className="celebration-scan pointer-events-none absolute inset-0" />
         <div className="relative">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-cyan-200/40 bg-cyan-300/10 shadow-[0_0_38px_rgba(103,232,249,0.45)]">
@@ -260,6 +446,21 @@ function CompletionCelebration({
             이중슬릿, 중첩, 터널 효과, 전자구름을 통해 양자역학 속 ‘확률’의
             의미를 모두 탐험했어요.
           </p>
+          <div className="mt-7">
+            <ResultSubmissionPanel
+              answerCount={answerCount}
+              onDownloadCsv={onDownloadCsv}
+              onStudentClassChange={onStudentClassChange}
+              onStudentNumberChange={onStudentNumberChange}
+              onSubmitResults={onSubmitResults}
+              studentClass={studentClass}
+              studentNumber={studentNumber}
+              submissionMessage={submissionMessage}
+              submissionStatus={submissionStatus}
+              totalCorrect={totalCorrect}
+              totalQuestions={totalQuestions}
+            />
+          </div>
           <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-center">
             <button
               className="rounded-md border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-slate-100 transition hover:border-cyan-200/60 hover:bg-cyan-200/10 hover:text-white"
