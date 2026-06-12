@@ -147,8 +147,27 @@ async function run() {
     }
   };
 
+  const selectByIndex = (index, value) =>
+    evaluate(`
+      (() => {
+        const select = document.querySelectorAll('select')[${index}];
+        if (!select) throw new Error('Select not found: ${index}');
+        select.value = ${JSON.stringify(value)};
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        return true;
+      })()
+    `);
+
   await client.call('Runtime.enable');
   await expectText('양자역학 속 확률 탐험실');
+  await expectText('학생 정보');
+  await expectText('반 선택');
+  await expectText('번호 선택');
+  await clickByText(concepts[0].title);
+  await expectText('탐험을 시작하기 전에 반과 번호를 선택해주세요.');
+  await selectByIndex(0, '햇님반');
+  await selectByIndex(1, '1');
+  await expectText('햇님반-1번');
 
   for (let conceptIndex = 0; conceptIndex < concepts.length; conceptIndex += 1) {
     const concept = concepts[conceptIndex];
@@ -226,15 +245,13 @@ async function run() {
   await expectButton('허브로 돌아가기');
   await expectButton('다시 탐험하기');
   await expectText('응답 결과 제출');
-  await expectText('반 선택');
-  await expectText('번호 선택');
+  await expectText('햇님반 1번의 탐험 결과');
   await expectButton('결과 제출하기');
   await expectButton('CSV 다운로드');
-  await clickByText('결과 제출하기');
-  await expectText('반과 번호를 먼저 선택해주세요.');
   await clickByText('다시 탐험하기');
   await expectText('0/4 탐험 완료');
   await expectText('0%');
+  await expectText('햇님반-1번');
   await expectNoText('양자 확률 탐험 완료!');
 
   client.close();

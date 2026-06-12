@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { ConceptArea } from '../../types/concept';
 import type { ResultSubmissionStatus, StudentClass } from '../../types/result';
 
@@ -74,11 +75,13 @@ export function ConceptHub({
   totalCorrect,
   totalQuestions,
 }: ConceptHubProps) {
+  const [startGuardMessage, setStartGuardMessage] = useState('');
   const completedCount = completedConceptIds.size;
   const progress = Math.round((completedCount / concepts.length) * 100);
   const completedConcepts = concepts.filter((concept) =>
     completedConceptIds.has(concept.id),
   );
+  const hasStudentIdentity = Boolean(studentClass && studentNumber);
 
   return (
     <section className="space-y-6" id="concept-hub">
@@ -135,6 +138,20 @@ export function ConceptHub({
         </div>
       </div>
 
+      <StudentIdentityPanel
+        onStudentClassChange={(nextStudentClass) => {
+          setStartGuardMessage('');
+          onStudentClassChange(nextStudentClass);
+        }}
+        onStudentNumberChange={(nextStudentNumber) => {
+          setStartGuardMessage('');
+          onStudentNumberChange(nextStudentNumber);
+        }}
+        startGuardMessage={startGuardMessage}
+        studentClass={studentClass}
+        studentNumber={studentNumber}
+      />
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {concepts.map((concept) => {
           const isCompleted = completedConceptIds.has(concept.id);
@@ -145,7 +162,17 @@ export function ConceptHub({
             <button
               className={`group relative flex min-h-[34rem] flex-col overflow-hidden rounded-lg border bg-slate-950/72 p-5 text-left shadow-2xl backdrop-blur-xl transition hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 ${tone.card} ${tone.ring}`}
               key={concept.id}
-              onClick={() => onSelectConcept(concept.id)}
+              onClick={() => {
+                if (!hasStudentIdentity) {
+                  setStartGuardMessage(
+                    '탐험을 시작하기 전에 반과 번호를 선택해주세요.',
+                  );
+                  return;
+                }
+
+                setStartGuardMessage('');
+                onSelectConcept(concept.id);
+              }}
               type="button"
             >
               <div
@@ -213,8 +240,6 @@ export function ConceptHub({
         <ResultSubmissionPanel
           answerCount={answerCount}
           onDownloadCsv={onDownloadCsv}
-          onStudentClassChange={onStudentClassChange}
-          onStudentNumberChange={onStudentNumberChange}
           onSubmitResults={onSubmitResults}
           studentClass={studentClass}
           studentNumber={studentNumber}
@@ -230,8 +255,6 @@ export function ConceptHub({
           onClose={onCloseCelebration}
           onDownloadCsv={onDownloadCsv}
           onRestart={onRestartExploration}
-          onStudentClassChange={onStudentClassChange}
-          onStudentNumberChange={onStudentNumberChange}
           onSubmitResults={onSubmitResults}
           studentClass={studentClass}
           studentNumber={studentNumber}
@@ -245,11 +268,112 @@ export function ConceptHub({
   );
 }
 
+function StudentIdentityPanel({
+  onStudentClassChange,
+  onStudentNumberChange,
+  startGuardMessage,
+  studentClass,
+  studentNumber,
+}: {
+  onStudentClassChange: (studentClass: StudentClass | '') => void;
+  onStudentNumberChange: (studentNumber: number | '') => void;
+  startGuardMessage: string;
+  studentClass: StudentClass | '';
+  studentNumber: number | '';
+}) {
+  return (
+    <div className="rounded-lg border border-cyan-200/25 bg-slate-950/70 p-5 text-left shadow-[0_0_42px_rgba(34,211,238,0.16)] sm:p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-bold text-cyan-300">학생 정보</p>
+          <p className="mt-2 text-sm leading-6 text-slate-300">
+            탐험을 시작하기 전에 반과 번호를 선택하세요. 이름은 입력하지 않습니다.
+          </p>
+        </div>
+        {studentClass && studentNumber ? (
+          <p className="rounded-md border border-emerald-300/30 bg-emerald-300/10 px-3 py-2 text-sm font-bold text-emerald-200">
+            {studentClass}-{studentNumber}번
+          </p>
+        ) : null}
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <StudentClassSelect
+          onChange={onStudentClassChange}
+          value={studentClass}
+        />
+        <StudentNumberSelect
+          onChange={onStudentNumberChange}
+          value={studentNumber}
+        />
+      </div>
+
+      {startGuardMessage ? (
+        <p className="mt-3 text-sm font-bold text-amber-200">
+          {startGuardMessage}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function StudentClassSelect({
+  onChange,
+  value,
+}: {
+  onChange: (studentClass: StudentClass | '') => void;
+  value: StudentClass | '';
+}) {
+  return (
+    <label className="text-sm font-bold text-slate-100">
+      반 선택
+      <select
+        className="mt-2 w-full rounded-md border border-white/15 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 outline-none transition focus:border-cyan-300"
+        onChange={(event) => onChange(event.target.value as StudentClass | '')}
+        value={value}
+      >
+        <option value="">반을 선택하세요</option>
+        {studentClasses.map((className) => (
+          <option key={className} value={className}>
+            {className}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function StudentNumberSelect({
+  onChange,
+  value,
+}: {
+  onChange: (studentNumber: number | '') => void;
+  value: number | '';
+}) {
+  return (
+    <label className="text-sm font-bold text-slate-100">
+      번호 선택
+      <select
+        className="mt-2 w-full rounded-md border border-white/15 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 outline-none transition focus:border-cyan-300"
+        onChange={(event) =>
+          onChange(event.target.value ? Number(event.target.value) : '')
+        }
+        value={value}
+      >
+        <option value="">번호를 선택하세요</option>
+        {studentNumbers.map((number) => (
+          <option key={number} value={number}>
+            {number}번
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function ResultSubmissionPanel({
   answerCount,
   onDownloadCsv,
-  onStudentClassChange,
-  onStudentNumberChange,
   onSubmitResults,
   studentClass,
   studentNumber,
@@ -260,8 +384,6 @@ function ResultSubmissionPanel({
 }: {
   answerCount: number;
   onDownloadCsv: () => void;
-  onStudentClassChange: (studentClass: StudentClass | '') => void;
-  onStudentNumberChange: (studentNumber: number | '') => void;
   onSubmitResults: () => void;
   studentClass: StudentClass | '';
   studentNumber: number | '';
@@ -283,51 +405,14 @@ function ResultSubmissionPanel({
         <div>
           <p className="text-sm font-bold text-cyan-300">응답 결과 제출</p>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            이름 없이 반과 번호만 선택해 개인 응답 결과를 제출합니다.
+            {studentClass && studentNumber
+              ? `${studentClass} ${studentNumber}번의 탐험 결과`
+              : '반과 번호를 먼저 선택해주세요.'}
           </p>
         </div>
         <p className="text-sm font-semibold text-slate-200">
           최종 정답 {totalCorrect}/{totalQuestions} · 기록 {answerCount}개
         </p>
-      </div>
-
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <label className="text-sm font-bold text-slate-100">
-          반 선택
-          <select
-            className="mt-2 w-full rounded-md border border-white/15 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 outline-none transition focus:border-cyan-300"
-            onChange={(event) =>
-              onStudentClassChange(event.target.value as StudentClass | '')
-            }
-            value={studentClass}
-          >
-            <option value="">반을 선택하세요</option>
-            {studentClasses.map((className) => (
-              <option key={className} value={className}>
-                {className}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-sm font-bold text-slate-100">
-          번호 선택
-          <select
-            className="mt-2 w-full rounded-md border border-white/15 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 outline-none transition focus:border-cyan-300"
-            onChange={(event) =>
-              onStudentNumberChange(
-                event.target.value ? Number(event.target.value) : '',
-              )
-            }
-            value={studentNumber}
-          >
-            <option value="">번호를 선택하세요</option>
-            {studentNumbers.map((number) => (
-              <option key={number} value={number}>
-                {number}번
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
       {submissionMessage ? (
@@ -373,8 +458,6 @@ function CompletionCelebration({
   onClose,
   onDownloadCsv,
   onRestart,
-  onStudentClassChange,
-  onStudentNumberChange,
   onSubmitResults,
   studentClass,
   studentNumber,
@@ -387,8 +470,6 @@ function CompletionCelebration({
   onClose: () => void;
   onDownloadCsv: () => void;
   onRestart: () => void;
-  onStudentClassChange: (studentClass: StudentClass | '') => void;
-  onStudentNumberChange: (studentNumber: number | '') => void;
   onSubmitResults: () => void;
   studentClass: StudentClass | '';
   studentNumber: number | '';
@@ -446,12 +527,15 @@ function CompletionCelebration({
             이중슬릿, 중첩, 터널 효과, 전자구름을 통해 양자역학 속 ‘확률’의
             의미를 모두 탐험했어요.
           </p>
+          {studentClass && studentNumber ? (
+            <p className="mx-auto mt-4 inline-flex rounded-md border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-sm font-black text-emerald-100">
+              {studentClass} {studentNumber}번의 탐험 결과
+            </p>
+          ) : null}
           <div className="mt-7">
             <ResultSubmissionPanel
               answerCount={answerCount}
               onDownloadCsv={onDownloadCsv}
-              onStudentClassChange={onStudentClassChange}
-              onStudentNumberChange={onStudentNumberChange}
               onSubmitResults={onSubmitResults}
               studentClass={studentClass}
               studentNumber={studentNumber}

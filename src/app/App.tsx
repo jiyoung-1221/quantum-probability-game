@@ -63,8 +63,6 @@ export function App() {
     setCompletedConceptIds(new Set());
     setSelectedConceptId(null);
     setIsCelebrationOpen(false);
-    setStudentClass('');
-    setStudentNumber('');
     setAnswerRecords([]);
     setSubmissionStatus('idle');
     setSubmissionMessage('');
