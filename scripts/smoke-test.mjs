@@ -177,13 +177,26 @@ async function run() {
         await expectButton('결과 확인');
       }
 
-      const correctChoiceIds = Array.isArray(question.correctAnswer)
-        ? question.correctAnswer
-        : [question.correctAnswer];
+      if (question.type === 'branching') {
+        await expectText('결과 흐름 완성하기');
 
-      for (const choiceId of correctChoiceIds) {
-        const choice = question.choices.find((item) => item.id === choiceId);
-        await clickByText(choice.text);
+        for (const card of [
+          question.correctAnswer.start,
+          question.correctAnswer.middle,
+          question.correctAnswer.rightResult,
+          question.correctAnswer.leftResult,
+        ]) {
+          await clickByText(card);
+        }
+      } else {
+        const correctChoiceIds = Array.isArray(question.correctAnswer)
+          ? question.correctAnswer
+          : [question.correctAnswer];
+
+        for (const choiceId of correctChoiceIds) {
+          const choice = question.choices.find((item) => item.id === choiceId);
+          await clickByText(choice.text);
+        }
       }
 
       await clickLastButtonByText('결과 확인');

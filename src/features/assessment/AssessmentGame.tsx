@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import type { ConceptArea, ConceptQuestion } from '../../types/concept';
+import type {
+  BranchingAnswer,
+  BranchingConceptQuestion,
+  ChoiceConceptQuestion,
+  ConceptArea,
+  ConceptQuestion,
+  OrderingConceptQuestion,
+} from '../../types/concept';
 
 type AssessmentGameProps = {
   concept: ConceptArea;
@@ -14,6 +21,43 @@ type QuestionResult = {
 
 const arraysEqual = (left: string[], right: string[]) =>
   left.length === right.length && left.every((item, index) => item === right[index]);
+
+type BranchingSlotKey = 'start' | 'middle' | 'leftResult' | 'rightResult';
+
+type BranchingSlots = Record<BranchingSlotKey, string | null>;
+
+const branchingSlotKeys: BranchingSlotKey[] = [
+  'start',
+  'middle',
+  'leftResult',
+  'rightResult',
+];
+
+const createEmptyBranchingSlots = (): BranchingSlots => ({
+  start: null,
+  middle: null,
+  leftResult: null,
+  rightResult: null,
+});
+
+const branchingResultMatches = (
+  leftResult: string | null,
+  rightResult: string | null,
+  answer: BranchingAnswer,
+) =>
+  (leftResult === answer.leftResult && rightResult === answer.rightResult) ||
+  (leftResult === answer.rightResult && rightResult === answer.leftResult);
+
+const branchingAnswerMatches = (
+  slots: BranchingSlots,
+  answer: BranchingAnswer,
+) =>
+  slots.start === answer.start &&
+  slots.middle === answer.middle &&
+  branchingResultMatches(slots.leftResult, slots.rightResult, answer);
+
+const isBranchingComplete = (slots: BranchingSlots) =>
+  branchingSlotKeys.every((key) => slots[key] !== null);
 
 const friendlyFlowLabels = [
   '먼저 생각해보기',
@@ -31,6 +75,9 @@ export function AssessmentGame({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
   const [orderedChoiceIds, setOrderedChoiceIds] = useState<string[]>([]);
+  const [branchingSlots, setBranchingSlots] = useState<BranchingSlots>(
+    createEmptyBranchingSlots,
+  );
   const [submitted, setSubmitted] = useState(false);
   const [results, setResults] = useState<QuestionResult[]>([]);
 
@@ -59,16 +106,18 @@ export function AssessmentGame({
     );
   }
 
-  const correctOrder = Array.isArray(question.correctAnswer)
-    ? question.correctAnswer
-    : [];
-  const isOrdering = question.type === 'ordering';
-  const isCorrect = isOrdering
-    ? arraysEqual(orderedChoiceIds, correctOrder)
-    : selectedChoiceId === question.correctAnswer;
-  const canSubmit = isOrdering
-    ? orderedChoiceIds.length === question.choices.length
-    : selectedChoiceId !== null;
+  const isCorrect =
+    question.type === 'ordering'
+      ? arraysEqual(orderedChoiceIds, question.correctAnswer)
+      : question.type === 'branching'
+        ? branchingAnswerMatches(branchingSlots, question.correctAnswer)
+        : selectedChoiceId === question.correctAnswer;
+  const canSubmit =
+    question.type === 'ordering'
+      ? orderedChoiceIds.length === question.choices.length
+      : question.type === 'branching'
+        ? isBranchingComplete(branchingSlots)
+        : selectedChoiceId !== null;
   const score = results.filter((result) => result.isCorrect).length;
   const isLastQuestion = currentIndex === concept.questions.length - 1;
   const feedbackItems = getFeedbackItems(
@@ -97,12 +146,14 @@ export function AssessmentGame({
     setCurrentIndex((current) => current + 1);
     setSelectedChoiceId(null);
     setOrderedChoiceIds([]);
+    setBranchingSlots(createEmptyBranchingSlots());
     setSubmitted(false);
   };
 
   const retryQuestion = () => {
     setSelectedChoiceId(null);
     setOrderedChoiceIds([]);
+    setBranchingSlots(createEmptyBranchingSlots());
     setSubmitted(false);
     setResults((current) =>
       current.filter((result) => result.questionId !== question.id),
@@ -140,8 +191,8 @@ export function AssessmentGame({
               {concept.title}
             </h2>
             <p className="mt-3 text-sm leading-7 text-slate-300 sm:text-base">
-              한 화면에 한 문항씩 제시됩니다. 선택형은 버튼으로 응답하고, 배열형은
-              순서 배열 카드에서 카드를 골라 나의 배열을 완성합니다.
+              한 화면에 한 문항씩 제시됩니다. 선택형은 버튼으로 응답하고, 배열형과
+              결과 흐름형은 카드를 골라 구조를 완성합니다.
             </p>
           </div>
           <ProgressPanel
@@ -156,7 +207,7 @@ export function AssessmentGame({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-bold text-cyan-300">
-              {currentIndex + 1}번 · {friendlyFlowLabels[currentIndex]}
+              {currentIndex + 1}번 · {getQuestionScreenLabel(question, currentIndex)}
             </p>
             <h3 className="mt-2 text-xl font-bold leading-8 text-white">
               {question.prompt}
@@ -167,7 +218,7 @@ export function AssessmentGame({
           </span>
         </div>
 
-        {isOrdering ? (
+        {question.type === 'ordering' ? (
           <OrderingQuestion
             disabled={submitted}
             onMove={moveChoice}
@@ -184,6 +235,24 @@ export function AssessmentGame({
             }
             orderedChoiceIds={orderedChoiceIds}
             question={question}
+          />
+        ) : question.type === 'branching' ? (
+          <BranchingQuestion
+            disabled={submitted}
+            onRemove={(slotKey) =>
+              setBranchingSlots((current) => ({ ...current, [slotKey]: null }))
+            }
+            onReset={() => setBranchingSlots(createEmptyBranchingSlots())}
+            onSelect={(card) =>
+              setBranchingSlots((current) => {
+                const targetKey = branchingSlotKeys.find(
+                  (slotKey) => current[slotKey] === null,
+                );
+                return targetKey ? { ...current, [targetKey]: card } : current;
+              })
+            }
+            question={question}
+            slots={branchingSlots}
           />
         ) : (
           <ChoiceQuestion
@@ -216,7 +285,7 @@ export function AssessmentGame({
             ? isLastQuestion
               ? '마지막 문항입니다. 완료하면 허브에서 체크 표시가 나타납니다.'
               : '피드백을 확인한 뒤 다음 문항으로 이동하세요.'
-            : '응답을 선택하거나 순서를 배열한 뒤 결과를 확인하세요.'}
+            : '응답을 선택하거나 카드를 배치한 뒤 결과를 확인하세요.'}
         </p>
         {submitted ? (
           <button
@@ -275,6 +344,12 @@ function ProgressPanel({
   );
 }
 
+function getQuestionScreenLabel(question: ConceptQuestion, currentIndex: number) {
+  return question.type === 'branching'
+    ? '결과 흐름 완성하기'
+    : friendlyFlowLabels[currentIndex];
+}
+
 function ChoiceQuestion({
   disabled,
   onSelect,
@@ -283,7 +358,7 @@ function ChoiceQuestion({
 }: {
   disabled: boolean;
   onSelect: (choiceId: string) => void;
-  question: ConceptQuestion;
+  question: ChoiceConceptQuestion;
   selectedChoiceId: string | null;
 }) {
   const isOx = question.type === 'ox';
@@ -328,7 +403,7 @@ function OrderingQuestion({
   onReset: () => void;
   onSelect: (choiceId: string) => void;
   orderedChoiceIds: string[];
-  question: ConceptQuestion;
+  question: OrderingConceptQuestion;
 }) {
   const choiceById = new Map(question.choices.map((choice) => [choice.id, choice]));
   const availableChoices = question.choices.filter(
@@ -429,6 +504,131 @@ function OrderingQuestion({
   );
 }
 
+function BranchingQuestion({
+  disabled,
+  onRemove,
+  onReset,
+  onSelect,
+  question,
+  slots,
+}: {
+  disabled: boolean;
+  onRemove: (slotKey: BranchingSlotKey) => void;
+  onReset: () => void;
+  onSelect: (card: string) => void;
+  question: BranchingConceptQuestion;
+  slots: BranchingSlots;
+}) {
+  const availableCards = question.cards.filter(
+    (card) => !Object.values(slots).includes(card),
+  );
+  const hasSelectedCards = branchingSlotKeys.some((key) => slots[key] !== null);
+
+  const slotLabels: Record<BranchingSlotKey, string> = {
+    start: '시작',
+    middle: '확률적 결정',
+    leftResult: '결과 A',
+    rightResult: '결과 B',
+  };
+
+  const renderSlot = (slotKey: BranchingSlotKey) => {
+    const card = slots[slotKey];
+
+    return (
+      <button
+        className={`min-h-24 w-full rounded-lg border p-4 text-center transition ${
+          card
+            ? 'border-cyan-300/60 bg-cyan-300/12 text-cyan-50 shadow-[0_0_18px_rgba(103,232,249,0.16)]'
+            : 'border-dashed border-white/20 bg-white/5 text-slate-400'
+        }`}
+        disabled={disabled || !card}
+        onClick={() => onRemove(slotKey)}
+        type="button"
+      >
+        <span className="block text-xs font-bold uppercase tracking-wide text-cyan-300">
+          {slotLabels[slotKey]}
+        </span>
+        <span className="mt-2 block text-sm font-semibold leading-6">
+          {card ?? '카드를 선택하세요'}
+        </span>
+      </button>
+    );
+  };
+
+  return (
+    <div className="mt-6 space-y-4">
+      <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-bold text-slate-100">결과 카드</p>
+          <button
+            className="rounded-md border border-white/10 bg-slate-950/60 px-3 py-2 text-xs font-bold text-slate-200 transition enabled:hover:border-cyan-300/60 enabled:hover:text-cyan-100 disabled:cursor-not-allowed disabled:text-slate-500"
+            disabled={disabled || !hasSelectedCards}
+            onClick={onReset}
+            type="button"
+          >
+            초기화
+          </button>
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          {availableCards.map((card) => (
+            <button
+              className="rounded-lg border border-white/10 bg-slate-950/60 p-3 text-left text-sm font-semibold leading-6 text-slate-200 transition hover:border-cyan-300/60 hover:bg-cyan-300/8 hover:text-cyan-50 disabled:cursor-not-allowed disabled:text-slate-500"
+              disabled={disabled}
+              key={card}
+              onClick={() => onSelect(card)}
+              type="button"
+            >
+              {card}
+            </button>
+          ))}
+          {availableCards.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-white/15 bg-slate-950/50 p-3 text-sm text-slate-400 sm:col-span-2">
+              모든 카드를 결과 흐름에 넣었습니다.
+            </p>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-white/10 bg-slate-950/60 p-4">
+        <p className="text-sm font-bold text-slate-100">나의 결과 흐름</p>
+        <div className="mx-auto mt-4 max-w-2xl">
+          <div className="mx-auto max-w-sm">{renderSlot('start')}</div>
+          <div
+            aria-hidden="true"
+            className="mx-auto h-8 w-px bg-cyan-200/80"
+          />
+          <div className="mx-auto max-w-sm">{renderSlot('middle')}</div>
+          <div className="mx-auto h-16 max-w-xl px-8 text-cyan-200 sm:px-10">
+            <svg
+              aria-hidden="true"
+              className="h-full w-full overflow-visible"
+              preserveAspectRatio="none"
+              viewBox="0 0 400 80"
+            >
+              <path
+                d="M200 0 V26 M200 26 L100 80 M200 26 L300 80"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="5"
+              />
+            </svg>
+          </div>
+          <div className="mx-auto grid max-w-xl grid-cols-2 gap-3 sm:gap-4">
+            {renderSlot('leftResult')}
+            {renderSlot('rightResult')}
+          </div>
+        </div>
+        <p className="mt-3 text-sm text-slate-400">
+          카드를 클릭하면 시작, 확률적 결정, 결과 A, 결과 B 순서로 들어갑니다.
+          배치한 카드를 다시 클릭하면 제거할 수 있습니다.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function FeedbackCard({
   isCorrect,
   items,
@@ -472,7 +672,14 @@ function getFeedbackItems(
     return [question.correctFeedback];
   }
 
-  if (question.type !== 'ordering' && selectedChoiceId) {
+  if (question.type === 'branching') {
+    return [
+      question.wrongFeedbacks.general ??
+        '결과 흐름을 다시 확인하세요. 결과 A와 결과 B는 순차적 사건이 아니라 병렬적 결과입니다.',
+    ];
+  }
+
+  if (selectedChoiceId) {
     return [
       question.wrongFeedbacks[selectedChoiceId] ??
         '선택한 답을 다시 확인하세요. 고전적 직관과 양자역학에서의 확률 설명을 구분해야 합니다.',
