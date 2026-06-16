@@ -11,7 +11,7 @@ import type {
 } from '../types/result';
 
 const resultSubmissionUrl =
-  'https://script.google.com/macros/s/AKfycbzjadFKC0N98eIRym3ydWLE9nctjiJbsp60FR8UhwQeegnxYcTxjNq5ryHp41csvpsL/exec';
+  'https://script.google.com/macros/s/AKfycbxTtLRC39OPYS_CSlN6M852CPGeLiYlkHKP-IooA43glZ26M38S8eGy1gPmuSa5_fSf/exec';
 
 const csvColumns = [
   'studentId',
