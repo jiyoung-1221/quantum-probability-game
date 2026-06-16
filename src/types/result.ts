@@ -1,4 +1,4 @@
-export type StudentClass = '햇님반' | '달님반' | '별님반';
+export type StudentClass = '햇님반' | '달님반' | '별님반' | '구름반' | '무지개반';
 
 export type StudentAnswerRecord = {
   areaId: string;

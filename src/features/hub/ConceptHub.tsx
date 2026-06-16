@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ConceptArea } from '../../types/concept';
 import type { ResultSubmissionStatus, StudentClass } from '../../types/result';
+import { formatStudentNumber } from '../../utils/studentIdentity';
 
 type ConceptHubProps = {
   answerCount: number;
@@ -22,7 +23,7 @@ type ConceptHubProps = {
   totalQuestions: number;
 };
 
-const studentClasses: StudentClass[] = ['햇님반', '달님반', '별님반'];
+const studentClasses: StudentClass[] = ['햇님반', '달님반', '별님반', '구름반', '무지개반'];
 const studentNumbers = Array.from({ length: 30 }, (_, index) => index + 1);
 
 const cardTone = {
@@ -292,7 +293,7 @@ function StudentIdentityPanel({
         </div>
         {studentClass && studentNumber ? (
           <p className="rounded-md border border-emerald-300/30 bg-emerald-300/10 px-3 py-2 text-sm font-bold text-emerald-200">
-            {studentClass}-{studentNumber}번
+            {studentClass}-{formatStudentNumber(studentNumber)}번
           </p>
         ) : null}
       </div>
@@ -406,7 +407,7 @@ function ResultSubmissionPanel({
           <p className="text-sm font-bold text-cyan-300">응답 결과 제출</p>
           <p className="mt-2 text-sm leading-6 text-slate-300">
             {studentClass && studentNumber
-              ? `${studentClass} ${studentNumber}번의 탐험 결과`
+              ? `${studentClass} ${formatStudentNumber(studentNumber)}번의 탐험 결과`
               : '반과 번호를 먼저 선택해주세요.'}
           </p>
         </div>
@@ -529,7 +530,7 @@ function CompletionCelebration({
           </p>
           {studentClass && studentNumber ? (
             <p className="mx-auto mt-4 inline-flex rounded-md border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-sm font-black text-emerald-100">
-              {studentClass} {studentNumber}번의 탐험 결과
+              {studentClass} {formatStudentNumber(studentNumber)}번의 탐험 결과
             </p>
           ) : null}
           <div className="mt-7">

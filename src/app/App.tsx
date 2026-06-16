@@ -9,6 +9,7 @@ import type {
   StudentAnswerRecord,
   StudentClass,
 } from '../types/result';
+import { formatStudentId } from '../utils/studentIdentity';
 
 const resultSubmissionUrl =
   'https://script.google.com/macros/s/AKfycbxTtLRC39OPYS_CSlN6M852CPGeLiYlkHKP-IooA43glZ26M38S8eGy1gPmuSa5_fSf/exec';
@@ -97,7 +98,7 @@ export function App() {
     }
 
     return {
-      studentId: `${studentClass}-${studentNumber}번`,
+      studentId: formatStudentId(studentClass, studentNumber),
       studentClass,
       studentNumber,
       totalCorrect,
